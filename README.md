@@ -54,7 +54,7 @@ without anyone approving it.
 | Name                              | Description                                             | Type          | Default                   | Required |
 |-----------------------------------|---------------------------------------------------------|---------------|---------------------------|:--------:|
 | `description`                     | Description of the transit gateway.                     | `string`      | `"Managed by Terraform"`  |    no    |
-| `amazon_side_asn`                 | Private ASN for the Amazon side of a BGP session. Must be 64512-65534 or 4200000000-4294967294. | `number` | `64512` |    no    |
+| `amazon_side_asn`                 | Private ASN for the Amazon side of a BGP session. Must be a whole number, 64512-65534 or 4200000000-4294967294. | `number` | `64512` |    no    |
 | `auto_accept_shared_attachments`  | Auto-accept cross-account attachment requests. `enable` \| `disable`. | `string` | `"disable"`  |    no    |
 | `default_route_table_association` | Auto-associate attachments with the default table. `enable` \| `disable`. | `string` | `"enable"` |    no    |
 | `default_route_table_propagation` | Auto-propagate routes to the default table. `enable` \| `disable`. | `string` | `"enable"`       |    no    |

@@ -137,3 +137,77 @@ run "rejects_asn_between_the_private_ranges" {
 
   expect_failures = [var.amazon_side_asn]
 }
+
+run "rejects_asn_just_below_the_32bit_range" {
+  command = plan
+
+  variables {
+    amazon_side_asn = 4199999999
+  }
+
+  expect_failures = [var.amazon_side_asn]
+}
+
+run "rejects_non_integer_asn" {
+  command = plan
+
+  variables {
+    amazon_side_asn = 64512.5
+  }
+
+  expect_failures = [var.amazon_side_asn]
+}
+
+run "accepts_asn_upper_16bit_boundary" {
+  command = plan
+
+  variables {
+    amazon_side_asn = 65534
+  }
+}
+
+run "accepts_asn_upper_32bit_boundary" {
+  command = plan
+
+  variables {
+    amazon_side_asn = 4294967294
+  }
+}
+
+run "updates_mutable_settings_in_place" {
+  # Runs against the state left behind by "settings_are_passed_through" above.
+  # amazon_side_asn is left untouched here on purpose: it forces replacement
+  # of the transit gateway, so changing it would not exercise an in-place
+  # update. This run only flips attributes that AWS allows to be modified on
+  # an existing transit gateway, and confirms the module applies that change
+  # cleanly rather than erroring or silently ignoring it.
+  variables {
+    description                     = "segmented tgw"
+    auto_accept_shared_attachments  = "disable"
+    default_route_table_association = "enable"
+    default_route_table_propagation = "enable"
+    vpn_ecmp_support                = "enable"
+    amazon_side_asn                 = 4200000000
+    tags = {
+      Environment = "test"
+    }
+  }
+
+  assert {
+    condition     = aws_ec2_transit_gateway.this.auto_accept_shared_attachments == "disable"
+    error_message = "auto_accept_shared_attachments was not updated in place."
+  }
+
+  assert {
+    condition = (
+      aws_ec2_transit_gateway.this.default_route_table_association == "enable" &&
+      aws_ec2_transit_gateway.this.default_route_table_propagation == "enable"
+    )
+    error_message = "default route table association/propagation were not updated in place."
+  }
+
+  assert {
+    condition     = aws_ec2_transit_gateway.this.vpn_ecmp_support == "enable"
+    error_message = "vpn_ecmp_support was not updated in place."
+  }
+}
