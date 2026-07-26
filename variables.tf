@@ -5,16 +5,22 @@ variable "description" {
 }
 
 variable "amazon_side_asn" {
-  description = "Private ASN for the Amazon side of a BGP session. Must be in the 16-bit private range 64512-65534 or the 32-bit private range 4200000000-4294967294."
+  description = "Private ASN for the Amazon side of a BGP session. Must be a whole number in the 16-bit private range 64512-65534 or the 32-bit private range 4200000000-4294967294."
   type        = number
   default     = 64512
 
+  # Kept as a single validation block (rather than a second one) so the module
+  # keeps working on Terraform >= 1.5 as declared in versions.tf: multiple
+  # validation blocks per variable require Terraform >= 1.9.
   validation {
     condition = (
-      (var.amazon_side_asn >= 64512 && var.amazon_side_asn <= 65534) ||
-      (var.amazon_side_asn >= 4200000000 && var.amazon_side_asn <= 4294967294)
+      var.amazon_side_asn == floor(var.amazon_side_asn) &&
+      (
+        (var.amazon_side_asn >= 64512 && var.amazon_side_asn <= 65534) ||
+        (var.amazon_side_asn >= 4200000000 && var.amazon_side_asn <= 4294967294)
+      )
     )
-    error_message = "amazon_side_asn must be between 64512 and 65534 (16-bit) or between 4200000000 and 4294967294 (32-bit)."
+    error_message = "amazon_side_asn must be a whole number, between 64512 and 65534 (16-bit) or between 4200000000 and 4294967294 (32-bit)."
   }
 }
 
