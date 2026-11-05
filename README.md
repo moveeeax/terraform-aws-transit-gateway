@@ -9,7 +9,7 @@ exposing the default route table IDs for building attachments.
 
 ```hcl
 module "transit_gateway" {
-  source = "github.com/moveeeax/terraform-aws-transit-gateway"
+  source = "github.com/moveeeax/terraform-aws-transit-gateway?ref=v1.0.0" # pin to a release tag
 
   description     = "prod-tgw"
   amazon_side_asn = 64512

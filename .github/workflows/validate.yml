@@ -13,10 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: opentofu/setup-opentofu@v1
+      - uses: opentofu/setup-opentofu@v2
         with:
+          tofu_version: 1.13.8
           tofu_wrapper: false
 
       - name: fmt
@@ -36,3 +37,21 @@ jobs:
         run: |
           tofu init -backend=false
           tofu validate
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: terraform-linters/setup-tflint@v6
+        with:
+          tflint_version: v0.65.0
+
+      # --recursive re-reads config per directory, so point every pass at the
+      # repo-root .tflint.hcl explicitly.
+      - name: tflint
+        env:
+          TFLINT_CONFIG_FILE: ${{ github.workspace }}/.tflint.hcl
+        run: |
+          tflint --init
+          tflint --recursive
